@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -27,10 +28,10 @@ public class InGameSystem : MonoBehaviour
 
         yield return new WaitForSeconds(1);
 
-        _input.FindAction("Up").performed += Up;
-        _input.FindAction("Down").performed += Down;
-        _input.FindAction("Left").performed += Left;
-        _input.FindAction("Right").performed += Right;
+        _input.FindAction("Up").started += Up;
+        _input.FindAction("Down").started += Down;
+        _input.FindAction("Left").started += Left;
+        _input.FindAction("Right").started += Right;
 
     }
     void SpawnCell(BoardPosition pos, int value)
@@ -63,29 +64,89 @@ public class InGameSystem : MonoBehaviour
     void Up(InputAction.CallbackContext context)
     {
         if (_isUpdate) { return; }
+        BoardSlide(InputType.Up);
+        StartUpdate();
     }
     void Down(InputAction.CallbackContext context)
     {
         if (_isUpdate) { return; }
+        StartUpdate();
     }
     void Left(InputAction.CallbackContext context)
     {
         if (_isUpdate) { return; }
+        StartUpdate();
     }
     void Right(InputAction.CallbackContext context)
     {
         if (_isUpdate) { return; }
+        StartUpdate();
     }
     [ContextMenu("Update")]
     void StartUpdate()
     {
         StartCoroutine(nameof(UpdateCells));
     }
+    public void DumpBoard()
+    {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < Board.GetLength(0); i++)
+        {
+            sb.Append($"[{Board[i, 0]}");
+            for (int k = 1; k < Board.GetLength(1); k++)
+            {
+                sb.Append($", {Board[i, k]}");
+            }
+            sb.Append("]" + (i != Board.GetLength(0) - 1 ? "\n" : ""));
+        }
+        Debug.Log(sb.ToString());
+    }
+    bool BoardSlide(InputType type)
+    {
+        bool[,] marged = new bool[Board.GetLength(0), Board.GetLength(1)];
+        switch (type)
+        {
+            case InputType.Up:
+                for (int i = 0; i < Board.GetLength(0); i++)
+                {
+                    for (int k = 0; k < Board.GetLength(1); k++)
+                    {
+                        if (i == 0) { continue; }
+                        int currentRow = i;
+                        while (currentRow > 0)
+                        {
+                            int nextRow = currentRow - 1;
+
+                            if (Board[nextRow, k] == 0)
+                            {
+                                Board[nextRow, k] = Board[currentRow, k];
+                                Board[currentRow, k] = 0;
+                                currentRow--;
+                                continue;
+                            }
+                            if (Board[nextRow, k] == Board[currentRow, k] && !marged[nextRow, k] && !marged[currentRow, k])
+                            {
+                                Board[nextRow, k] *= 2;
+                                Board[currentRow, k] = 0;
+                                marged[nextRow, k] = true;
+                                break;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+                break;
+        }
+        return true;
+    }
 
     IEnumerator UpdateCells()
     {
         _isUpdate = true;
-
+        Debug.Log("Start");
         var emptyPositions = GetEmptyBoardPosition();
         if (emptyPositions.Length > 0)
         {
@@ -93,11 +154,13 @@ public class InGameSystem : MonoBehaviour
             var randomPos = emptyPositions[Random.Range(0, emptyPositions.Length)];
             SpawnCell(randomPos, value);
         }
-
-        yield return null;
+        _boardView.Set(Board);
+        DumpBoard();
+        yield return new WaitForSeconds(0.5f);
         _isUpdate = false;
     }
 }
+
 enum InputType
 {
     Up,
