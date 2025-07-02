@@ -9,7 +9,6 @@ public class BoardView : MonoBehaviour
     [SerializeField] Text _scoreText;
     [SerializeField] GameObject _cellPrefab;
     List<CellView> _cells;
-    readonly int[] _nums = new int[] { 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048 };//11
     public void Initialize()
     {
         _cells = new List<CellView>();
@@ -34,8 +33,7 @@ public class BoardView : MonoBehaviour
             }
             else
             {
-                int index = Array.IndexOf(_nums, n);
-                _cells[i].Set(index, n);
+                _cells[i].Set(n);
             }
         }
     }
