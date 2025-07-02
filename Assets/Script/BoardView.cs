@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,10 +7,28 @@ public class BoardView : MonoBehaviour
 {
     [SerializeField] GameObject _cellContainer;
     [SerializeField] Text _scoreText;
-
-    void Start()
+    [SerializeField] GameObject _cellPrefab;
+    List<CellView> _cells;
+    public void Initialize()
     {
+        _cells = new List<CellView>();
+        for (int i = 0; i < 16; i++)
+        {
+            _cells.Add(Instantiate(_cellPrefab.GetComponent<CellView>(), _cellContainer.transform));
+        }
+    }
 
+    public void Set(int[,] board)
+    {
+        for (int i = 0; i < board.GetLength(0) * board.GetLength(1); i++)
+        {
+            int r = i / board.GetLength(1);
+            int c = i % board.GetLength(0);
+
+            int n = board[r, c];
+
+            _cells[i].ChangeColor(n);
+        }
     }
 
     void UpdateView()
