@@ -10,7 +10,7 @@ public class InGameSystem : MonoBehaviour
     public int[,] Board { get; private set; }
     public int Score { get; private set; }
     bool _isUpdate;
-
+    [SerializeField] int _probability = 5;
     void Start()
     {
         StartCoroutine(Initialize());
@@ -19,7 +19,7 @@ public class InGameSystem : MonoBehaviour
     IEnumerator Initialize()
     {
         var board = new int[4, 4];
-        board[Random.Range(0, 4), Random.Range(0, 4)] = Random.Range(0, 10) < 5 ? 2 : 4;
+        board[Random.Range(0, 4), Random.Range(0, 4)] = Random.Range(0, 10) < _probability ? 2 : 4;
         InitializeGame(board, Score);
 
         _boardView.Initialize();
@@ -62,22 +62,22 @@ public class InGameSystem : MonoBehaviour
     }
     void Up(InputAction.CallbackContext context)
     {
-
+        if (_isUpdate) { return; }
     }
     void Down(InputAction.CallbackContext context)
     {
-
+        if (_isUpdate) { return; }
     }
     void Left(InputAction.CallbackContext context)
     {
-
+        if (_isUpdate) { return; }
     }
     void Right(InputAction.CallbackContext context)
     {
-
+        if (_isUpdate) { return; }
     }
     [ContextMenu("Update")]
-    public void StartC()
+    void StartUpdate()
     {
         StartCoroutine(nameof(UpdateCells));
     }
@@ -89,7 +89,7 @@ public class InGameSystem : MonoBehaviour
         var emptyPositions = GetEmptyBoardPosition();
         if (emptyPositions.Length > 0)
         {
-            var value = Random.Range(0, 10) < 5 ? 2 : 4;
+            var value = Random.Range(0, 10) < _probability ? 2 : 4;
             var randomPos = emptyPositions[Random.Range(0, emptyPositions.Length)];
             SpawnCell(randomPos, value);
         }

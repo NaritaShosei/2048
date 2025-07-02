@@ -34,17 +34,6 @@ public class BoardView : MonoBehaviour
 
         }
     }
-
-    void UpdateView()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 }
 /// <summary>
 /// セルが存在する座標を保存する
