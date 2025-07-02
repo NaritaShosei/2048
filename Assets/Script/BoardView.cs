@@ -27,7 +27,11 @@ public class BoardView : MonoBehaviour
 
             int n = board[r, c];
 
-            _cells[i].ChangeColor(n);
+            if (n > 0)
+            {
+                _cells[i].ChangeColor(n);
+            }
+
         }
     }
 

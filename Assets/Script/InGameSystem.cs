@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,6 +9,7 @@ public class InGameSystem : MonoBehaviour
     [SerializeField] BoardView _boardView;
     public int[,] Board { get; private set; }
     public int Score { get; private set; }
+    bool _isUpdate;
 
     void Start()
     {
@@ -31,6 +33,27 @@ public class InGameSystem : MonoBehaviour
         _input.FindAction("Right").performed += Right;
 
     }
+    void SpawnCell(BoardPosition pos, int value)
+    {
+        Board[pos.Row, pos.Column] = value;
+        _boardView.Set(Board);
+    }
+
+    BoardPosition[] GetEmptyBoardPosition()
+    {
+        List<BoardPosition> list = new List<BoardPosition>();
+        for (int i = 0; i < Board.GetLength(0); i++)
+        {
+            for (int k = 0; k < Board.GetLength(1); k++)
+            {
+                if (Board[i, k] == 0)
+                {
+                    list.Add(new BoardPosition(i, k));
+                }
+            }
+        }
+        return list.ToArray();
+    }
 
     void InitializeGame(int[,] board, int score)
     {
@@ -53,11 +76,26 @@ public class InGameSystem : MonoBehaviour
     {
 
     }
+    [ContextMenu("Update")]
+    public void StartC()
+    {
+        StartCoroutine(nameof(UpdateCells));
+    }
 
     IEnumerator UpdateCells()
     {
+        _isUpdate = true;
+
+        var emptyPositions = GetEmptyBoardPosition();
+        if (emptyPositions.Length > 0)
+        {
+            var value = Random.Range(0, 10) < 5 ? 2 : 4;
+            var randomPos = emptyPositions[Random.Range(0, emptyPositions.Length)];
+            SpawnCell(randomPos, value);
+        }
 
         yield return null;
+        _isUpdate = false;
     }
 }
 enum InputType
