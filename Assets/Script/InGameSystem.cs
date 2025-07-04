@@ -70,16 +70,19 @@ public class InGameSystem : MonoBehaviour
     void Down(InputAction.CallbackContext context)
     {
         if (_isUpdate) { return; }
+        BoardSlide(InputType.Down);
         StartUpdate();
     }
     void Left(InputAction.CallbackContext context)
     {
         if (_isUpdate) { return; }
+        BoardSlide(InputType.Left);
         StartUpdate();
     }
     void Right(InputAction.CallbackContext context)
     {
         if (_isUpdate) { return; }
+        BoardSlide(InputType.Right);
         StartUpdate();
     }
     [ContextMenu("Update")]
@@ -122,6 +125,39 @@ public class InGameSystem : MonoBehaviour
                                 Board[nextRow, k] = Board[currentRow, k];
                                 Board[currentRow, k] = 0;
                                 currentRow--;
+                                continue;
+                            }
+                            if (Board[nextRow, k] == Board[currentRow, k] && !marged[nextRow, k] && !marged[currentRow, k])
+                            {
+                                Board[nextRow, k] *= 2;
+                                Board[currentRow, k] = 0;
+                                marged[nextRow, k] = true;
+                                break;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+                break;
+            case InputType.Down:
+                for (int i = Board.GetLength(0) - 1; 0 <= i; i--)
+                {
+                    for (int k = 0; k < Board.GetLength(1); k++)
+                    {
+                        if (i == Board.GetLength(0) - 1) { continue; }
+                        int currentRow = i;
+                        while (currentRow < Board.GetLength(0) - 1)
+                        {
+                            int nextRow = currentRow + 1;
+
+                            if (Board[nextRow, k] == 0)
+                            {
+                                Board[nextRow, k] = Board[currentRow, k];
+                                Board[currentRow, k] = 0;
+                                currentRow++;
                                 continue;
                             }
                             if (Board[nextRow, k] == Board[currentRow, k] && !marged[nextRow, k] && !marged[currentRow, k])
