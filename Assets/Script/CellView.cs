@@ -15,7 +15,7 @@ public class CellView : MonoBehaviour
         _text.enabled = true;
         int index = Array.IndexOf(_nums, num);
         if (index == -1) { Debug.LogError($"予期しない数字{num}です。"); return; }
-        if (index >= _colors.Length) { Debug.LogError($"colorsの要素数が足りません"); }
+        if (index >= _colors.Length) { Debug.LogError($"colorsの要素数が足りません"); return; }
         _text.text = $"{num}";
         _image.color = _colors[index];
     }

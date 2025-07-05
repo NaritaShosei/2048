@@ -12,6 +12,7 @@ public class InGameSystem : MonoBehaviour
     public int Score { get; private set; }
     bool _isUpdate;
     [SerializeField] int _probability = 5;
+    [SerializeField] float _waitTime = 0.5f;
     void Start()
     {
         StartCoroutine(Initialize());
@@ -21,10 +22,11 @@ public class InGameSystem : MonoBehaviour
     {
         var board = new int[4, 4];
         board[Random.Range(0, 4), Random.Range(0, 4)] = Random.Range(0, 10) < _probability ? 2 : 4;
-        InitializeGame(board, Score);
+        InitializeGame(board, 0);
 
         _boardView.Initialize();
-        _boardView.Set(Board);
+        _boardView.SetBoard(Board);
+        _boardView.SetScore(Score);
 
         yield return new WaitForSeconds(1);
 
@@ -37,7 +39,7 @@ public class InGameSystem : MonoBehaviour
     void SpawnCell(BoardPosition pos, int value)
     {
         Board[pos.Row, pos.Column] = value;
-        _boardView.Set(Board);
+        _boardView.SetBoard(Board);
     }
 
     BoardPosition[] GetEmptyBoardPosition()
@@ -130,6 +132,7 @@ public class InGameSystem : MonoBehaviour
                             if (Board[nextRow, k] == Board[currentRow, k] && !marged[nextRow, k] && !marged[currentRow, k])
                             {
                                 Board[nextRow, k] *= 2;
+                                Score += Board[nextRow, k];
                                 Board[currentRow, k] = 0;
                                 marged[nextRow, k] = true;
                                 break;
@@ -163,8 +166,77 @@ public class InGameSystem : MonoBehaviour
                             if (Board[nextRow, k] == Board[currentRow, k] && !marged[nextRow, k] && !marged[currentRow, k])
                             {
                                 Board[nextRow, k] *= 2;
+                                Score += Board[nextRow, k];
                                 Board[currentRow, k] = 0;
                                 marged[nextRow, k] = true;
+                                break;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+                break;
+            case InputType.Left:
+                for (int i = 0; i < Board.GetLength(0); i++)
+                {
+                    for (int k = 0; k < Board.GetLength(1); k++)
+                    {
+                        if (k == 0) { continue; }
+                        int currentColumn = k;
+                        while (currentColumn > 0)
+                        {
+                            int nextColumn = currentColumn - 1;
+
+                            if (Board[i, nextColumn] == 0)
+                            {
+                                Board[i, nextColumn] = Board[i, currentColumn];
+                                Board[i, currentColumn] = 0;
+                                currentColumn--;
+                                continue;
+                            }
+                            if (Board[i, nextColumn] == Board[i, currentColumn] && !marged[nextColumn, k] && !marged[currentColumn, k])
+                            {
+                                Board[i, nextColumn] *= 2;
+                                Score += Board[i, nextColumn];
+                                Board[i, currentColumn] = 0;
+                                marged[i, nextColumn] = true;
+                                break;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+                break;
+            case InputType.Right:
+                for (int i = 0; i < Board.GetLength(0); i++)
+                {
+                    for (int k = Board.GetLength(1) - 1; 0 <= k; k--)
+                    {
+                        if (k == Board.GetLength(1) - 1) { continue; }
+                        int currentColumn = k;
+                        while (currentColumn < Board.GetLength(1) - 1)
+                        {
+                            int nextColumn = currentColumn + 1;
+
+                            if (Board[i, nextColumn] == 0)
+                            {
+                                Board[i, nextColumn] = Board[i, currentColumn];
+                                Board[i, currentColumn] = 0;
+                                currentColumn++;
+                                continue;
+                            }
+                            if (Board[i, nextColumn] == Board[i, currentColumn] && !marged[nextColumn, k] && !marged[currentColumn, k])
+                            {
+                                Board[i, nextColumn] *= 2;
+                                Score += Board[i, nextColumn];
+                                Board[i, currentColumn] = 0;
+                                marged[i, nextColumn] = true;
                                 break;
                             }
                             else
@@ -190,9 +262,9 @@ public class InGameSystem : MonoBehaviour
             var randomPos = emptyPositions[Random.Range(0, emptyPositions.Length)];
             SpawnCell(randomPos, value);
         }
-        _boardView.Set(Board);
+        _boardView.SetBoard(Board);
         DumpBoard();
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(_waitTime);
         _isUpdate = false;
     }
 }
