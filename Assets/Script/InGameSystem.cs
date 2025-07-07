@@ -197,7 +197,7 @@ public class InGameSystem : MonoBehaviour
                                 currentColumn--;
                                 continue;
                             }
-                            if (Board[i, nextColumn] == Board[i, currentColumn] && !marged[nextColumn, k] && !marged[currentColumn, k])
+                            if (Board[i, nextColumn] == Board[i, currentColumn] && !marged[i, nextColumn] && !marged[i, currentColumn])
                             {
                                 Board[i, nextColumn] *= 2;
                                 Score += Board[i, nextColumn];
@@ -231,7 +231,7 @@ public class InGameSystem : MonoBehaviour
                                 currentColumn++;
                                 continue;
                             }
-                            if (Board[i, nextColumn] == Board[i, currentColumn] && !marged[nextColumn, k] && !marged[currentColumn, k])
+                            if (Board[i, nextColumn] == Board[i, currentColumn] && !marged[i, nextColumn] && !marged[i,currentColumn])
                             {
                                 Board[i, nextColumn] *= 2;
                                 Score += Board[i, nextColumn];
@@ -263,6 +263,7 @@ public class InGameSystem : MonoBehaviour
             SpawnCell(randomPos, value);
         }
         _boardView.SetBoard(Board);
+        _boardView.SetScore(Score);
         DumpBoard();
         yield return new WaitForSeconds(_waitTime);
         _isUpdate = false;
