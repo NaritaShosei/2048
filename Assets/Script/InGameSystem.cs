@@ -15,6 +15,7 @@ public class InGameSystem : MonoBehaviour
     [SerializeField] int _probability = 5;
     [SerializeField] float _waitTime = 0.5f;
     Dictionary<int, BoardPosition> _moveData = new();
+    InputType[] _inputTypes = new InputType[] { InputType.Up, InputType.Down, InputType.Left, InputType.Right };
     void Start()
     {
         StartCoroutine(Initialize());
@@ -275,6 +276,173 @@ public class InGameSystem : MonoBehaviour
         return isMoved;
     }
 
+    bool CanSlide(InputType type)
+    {
+        var board = Board.Clone() as int[,];
+
+        _moveData = new();
+
+        bool isMoved = false;
+        bool[,] marged = new bool[board.GetLength(0), board.GetLength(1)];
+        switch (type)
+        {
+            case InputType.Up:
+                for (int i = 0; i < board.GetLength(0); i++)
+                {
+                    for (int k = 0; k < board.GetLength(1); k++)
+                    {
+                        if (i == 0) { continue; }
+                        if (board[i, k] == 0) { continue; }
+                        int currentRow = i;
+                        while (currentRow > 0)
+                        {
+                            int nextRow = currentRow - 1;
+
+                            if (Board[nextRow, k] == 0)
+                            {
+                                board[nextRow, k] = board[currentRow, k];
+                                board[currentRow, k] = 0;
+                                currentRow--;
+                                isMoved = true;
+                                continue;
+                            }
+                            if (Board[nextRow, k] == board[currentRow, k] && !marged[nextRow, k] && !marged[currentRow, k])
+                            {
+                                board[nextRow, k] *= 2;
+                                board[currentRow, k] = 0;
+                                marged[nextRow, k] = true;
+                                isMoved = true;
+                                break;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+                break;
+            case InputType.Down:
+                for (int i = board.GetLength(0) - 1; 0 <= i; i--)
+                {
+                    for (int k = 0; k < board.GetLength(1); k++)
+                    {
+                        if (i == board.GetLength(0) - 1) { continue; }
+                        if (Board[i, k] == 0) { continue; }
+                        int currentRow = i;
+                        while (currentRow < board.GetLength(0) - 1)
+                        {
+                            int nextRow = currentRow + 1;
+
+                            if (board[nextRow, k] == 0)
+                            {
+                                board[nextRow, k] = board[currentRow, k];
+                                board[currentRow, k] = 0;
+                                currentRow++;
+                                isMoved = true;
+                                continue;
+                            }
+                            if (board[nextRow, k] == board[currentRow, k] && !marged[nextRow, k] && !marged[currentRow, k])
+                            {
+                                board[nextRow, k] *= 2;
+                                board[currentRow, k] = 0;
+                                marged[nextRow, k] = true;
+                                isMoved = true;
+                                break;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+                break;
+            case InputType.Left:
+                for (int i = 0; i < board.GetLength(0); i++)
+                {
+                    for (int k = 0; k < board.GetLength(1); k++)
+                    {
+                        if (k == 0) { continue; }
+                        if (board[i, k] == 0) { continue; }
+                        int currentColumn = k;
+                        while (currentColumn > 0)
+                        {
+                            int nextColumn = currentColumn - 1;
+
+                            if (board[i, nextColumn] == 0)
+                            {
+                                board[i, nextColumn] = board[i, currentColumn];
+                                board[i, currentColumn] = 0;
+                                currentColumn--;
+                                isMoved = true;
+                                continue;
+                            }
+                            if (board[i, nextColumn] == board[i, currentColumn] && !marged[i, nextColumn] && !marged[i, currentColumn])
+                            {
+                                board[i, nextColumn] *= 2;
+                                board[i, currentColumn] = 0;
+                                marged[i, nextColumn] = true;
+                                isMoved = true;
+                                break;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+                break;
+            case InputType.Right:
+                for (int i = 0; i < board.GetLength(0); i++)
+                {
+                    for (int k = board.GetLength(1) - 1; 0 <= k; k--)
+                    {
+                        if (k == board.GetLength(1) - 1) { continue; }
+                        if (board[i, k] == 0) { continue; }
+                        int currentColumn = k;
+                        while (currentColumn < board.GetLength(1) - 1)
+                        {
+                            int nextColumn = currentColumn + 1;
+
+                            if (board[i, nextColumn] == 0)
+                            {
+                                board[i, nextColumn] = board[i, currentColumn];
+                                board[i, currentColumn] = 0;
+                                currentColumn++;
+                                isMoved = true;
+                                continue;
+                            }
+                            if (board[i, nextColumn] == board[i, currentColumn] && !marged[i, nextColumn] && !marged[i, currentColumn])
+                            {
+                                board[i, nextColumn] *= 2;
+                                board[i, currentColumn] = 0;
+                                marged[i, nextColumn] = true;
+                                isMoved = true; break;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+                break;
+        }
+        return isMoved;
+    }
+    bool IsGameOver()
+    {
+        foreach (var type in _inputTypes)
+        {
+            if (CanSlide(type))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
     IEnumerator UpdateCells()
     {
         _isUpdate = true;
@@ -297,7 +465,23 @@ public class InGameSystem : MonoBehaviour
         _boardView.SetBoard(Board);
         _boardView.SetScore(Score);
         DumpBoard();
+        if (IsGameOver())
+        {
+            Debug.Log("GameOver");
+            StartCoroutine(StartGameOver());
+        }
         _isUpdate = false;
+    }
+    IEnumerator StartGameOver()
+    {
+        yield break;
+    }
+    private void OnDisable()
+    {
+        _input.FindAction("Up").started -= Up;
+        _input.FindAction("Down").started -= Down;
+        _input.FindAction("Left").started -= Left;
+        _input.FindAction("Right").started -= Right;
     }
 }
 
