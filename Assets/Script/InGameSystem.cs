@@ -13,6 +13,7 @@ public class InGameSystem : MonoBehaviour
     bool _isUpdate;
     [SerializeField] int _probability = 5;
     [SerializeField] float _waitTime = 0.5f;
+    BoardPosition[,] _movePosition;
     void Start()
     {
         StartCoroutine(Initialize());
@@ -99,6 +100,9 @@ public class InGameSystem : MonoBehaviour
     }
     bool BoardSlide(InputType type)
     {
+
+        _movePosition = new BoardPosition[4, 4];
+
         bool isMoved = false;
         bool[,] marged = new bool[Board.GetLength(0), Board.GetLength(1)];
         switch (type)
@@ -121,6 +125,7 @@ public class InGameSystem : MonoBehaviour
                                 Board[currentRow, k] = 0;
                                 currentRow--;
                                 isMoved = true;
+                                _movePosition[i, k] = new BoardPosition(nextRow, k);
                                 continue;
                             }
                             if (Board[nextRow, k] == Board[currentRow, k] && !marged[nextRow, k] && !marged[currentRow, k])
@@ -130,6 +135,7 @@ public class InGameSystem : MonoBehaviour
                                 Board[currentRow, k] = 0;
                                 marged[nextRow, k] = true;
                                 isMoved = true;
+                                _movePosition[i, k] = new BoardPosition(nextRow, k);
                                 break;
                             }
                             else
@@ -265,6 +271,11 @@ public class InGameSystem : MonoBehaviour
             var value = Random.Range(0, 10) < _probability ? 2 : 4;
             var randomPos = emptyPositions[Random.Range(0, emptyPositions.Length)];
             SpawnCell(randomPos, value);
+        }
+        if (_movePosition != null)
+        {
+            StartCoroutine((_boardView.CellMoveAnimation(_movePosition)));
+            _movePosition = null;
         }
         _boardView.SetBoard(Board);
         _boardView.SetScore(Score);

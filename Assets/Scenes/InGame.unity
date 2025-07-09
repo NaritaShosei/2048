@@ -1712,6 +1712,7 @@ MonoBehaviour:
   _cellContainer: {fileID: 1183097952}
   _scoreText: {fileID: 14603559}
   _cellPrefab: {fileID: 292888846255541609, guid: 94edf415500bc2c4eb4933b639e9a16c, type: 3}
+  _layoutGroup: {fileID: 1183097954}
 --- !u!1001 &1196325927
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +10,7 @@ public class BoardView : MonoBehaviour
     [SerializeField] Text _scoreText;
     [SerializeField] GameObject _cellPrefab;
     List<CellView> _cells;
+    [SerializeField] GridLayoutGroup _layoutGroup;
     public void Initialize()
     {
         _cells = new List<CellView>();
@@ -40,6 +42,24 @@ public class BoardView : MonoBehaviour
                 _cells[i].Set(n);
             }
         }
+    }
+
+    public IEnumerator CellMoveAnimation(BoardPosition[,] movePosition)
+    {
+        _layoutGroup.enabled = false;
+        for (int i = 0; i < movePosition.GetLength(0) * movePosition.GetLength(1); i++)
+        {
+            int r = i / movePosition.GetLength(1);
+            int c = i % movePosition.GetLength(0);
+
+            var target = movePosition[r, c];
+
+            int targetInd = target.Row * movePosition.GetLength(1) + movePosition.GetLength(0);
+
+            _cells[i].MoveAnimation(_cells[targetInd].transform.position);
+        }
+        yield return new WaitForSeconds(0.2f);
+        _layoutGroup.enabled = true;
     }
 }
 /// <summary>
