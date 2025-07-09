@@ -8,12 +8,12 @@ public class InGameSystem : MonoBehaviour
 {
     [SerializeField] InputActionAsset _input;
     [SerializeField] BoardView _boardView;
+    [SerializeField] FadeUI _fadeUI;
     public int[,] Board { get; private set; }
     public int[,] OriginalBoard { get; private set; }
     public int Score { get; private set; }
     bool _isUpdate;
     [SerializeField] int _probability = 5;
-    [SerializeField] float _waitTime = 0.5f;
     Dictionary<int, BoardPosition> _moveData = new();
     InputType[] _inputTypes = new InputType[] { InputType.Up, InputType.Down, InputType.Left, InputType.Right };
     void Start()
@@ -31,7 +31,7 @@ public class InGameSystem : MonoBehaviour
         _boardView.SetBoard(Board);
         _boardView.SetScore(Score);
 
-        yield return new WaitForSeconds(1);
+        yield return StartCoroutine(_fadeUI.StartFade(1, 0));
 
         _input.FindAction("Up").started += Up;
         _input.FindAction("Down").started += Down;
