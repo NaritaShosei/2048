@@ -9,11 +9,12 @@ public class InGameSystem : MonoBehaviour
     [SerializeField] InputActionAsset _input;
     [SerializeField] BoardView _boardView;
     public int[,] Board { get; private set; }
+    public int[,] OriginalBoard { get; private set; }
     public int Score { get; private set; }
     bool _isUpdate;
     [SerializeField] int _probability = 5;
     [SerializeField] float _waitTime = 0.5f;
-    BoardPosition[,] _movePosition;
+    Dictionary<int, BoardPosition> _moveData = new();
     void Start()
     {
         StartCoroutine(Initialize());
@@ -100,8 +101,9 @@ public class InGameSystem : MonoBehaviour
     }
     bool BoardSlide(InputType type)
     {
+        OriginalBoard = Board.Clone() as int[,];
 
-        _movePosition = new BoardPosition[4, 4];
+        _moveData = new();
 
         bool isMoved = false;
         bool[,] marged = new bool[Board.GetLength(0), Board.GetLength(1)];
@@ -114,6 +116,9 @@ public class InGameSystem : MonoBehaviour
                     {
                         if (i == 0) { continue; }
                         if (Board[i, k] == 0) { continue; }
+
+                        int index = i * 4 + k;
+
                         int currentRow = i;
                         while (currentRow > 0)
                         {
@@ -125,7 +130,7 @@ public class InGameSystem : MonoBehaviour
                                 Board[currentRow, k] = 0;
                                 currentRow--;
                                 isMoved = true;
-                                _movePosition[i, k] = new BoardPosition(nextRow, k);
+                                _moveData[index] = new BoardPosition(nextRow, k);
                                 continue;
                             }
                             if (Board[nextRow, k] == Board[currentRow, k] && !marged[nextRow, k] && !marged[currentRow, k])
@@ -135,7 +140,7 @@ public class InGameSystem : MonoBehaviour
                                 Board[currentRow, k] = 0;
                                 marged[nextRow, k] = true;
                                 isMoved = true;
-                                _movePosition[i, k] = new BoardPosition(nextRow, k);
+                                _moveData[index] = new BoardPosition(nextRow, k);
                                 break;
                             }
                             else
@@ -154,6 +159,7 @@ public class InGameSystem : MonoBehaviour
                         if (i == Board.GetLength(0) - 1) { continue; }
                         if (Board[i, k] == 0) { continue; }
                         int currentRow = i;
+                        int index = i * 4 + k;
                         while (currentRow < Board.GetLength(0) - 1)
                         {
                             int nextRow = currentRow + 1;
@@ -164,6 +170,7 @@ public class InGameSystem : MonoBehaviour
                                 Board[currentRow, k] = 0;
                                 currentRow++;
                                 isMoved = true;
+                                _moveData[index] = new BoardPosition(nextRow, k);
                                 continue;
                             }
                             if (Board[nextRow, k] == Board[currentRow, k] && !marged[nextRow, k] && !marged[currentRow, k])
@@ -172,6 +179,7 @@ public class InGameSystem : MonoBehaviour
                                 Score += Board[nextRow, k];
                                 Board[currentRow, k] = 0;
                                 marged[nextRow, k] = true;
+                                _moveData[index] = new BoardPosition(nextRow, k);
                                 isMoved = true;
                                 break;
                             }
@@ -191,6 +199,7 @@ public class InGameSystem : MonoBehaviour
                         if (k == 0) { continue; }
                         if (Board[i, k] == 0) { continue; }
                         int currentColumn = k;
+                        int index = i * 4 + k;
                         while (currentColumn > 0)
                         {
                             int nextColumn = currentColumn - 1;
@@ -201,6 +210,7 @@ public class InGameSystem : MonoBehaviour
                                 Board[i, currentColumn] = 0;
                                 currentColumn--;
                                 isMoved = true;
+                                _moveData[index] = new BoardPosition(i, nextColumn);
                                 continue;
                             }
                             if (Board[i, nextColumn] == Board[i, currentColumn] && !marged[i, nextColumn] && !marged[i, currentColumn])
@@ -210,6 +220,7 @@ public class InGameSystem : MonoBehaviour
                                 Board[i, currentColumn] = 0;
                                 marged[i, nextColumn] = true;
                                 isMoved = true;
+                                _moveData[index] = new BoardPosition(i, nextColumn);
                                 break;
                             }
                             else
@@ -228,6 +239,7 @@ public class InGameSystem : MonoBehaviour
                         if (k == Board.GetLength(1) - 1) { continue; }
                         if (Board[i, k] == 0) { continue; }
                         int currentColumn = k;
+                        int index = i * 4 + k;
                         while (currentColumn < Board.GetLength(1) - 1)
                         {
                             int nextColumn = currentColumn + 1;
@@ -238,6 +250,7 @@ public class InGameSystem : MonoBehaviour
                                 Board[i, currentColumn] = 0;
                                 currentColumn++;
                                 isMoved = true;
+                                _moveData[index] = new BoardPosition(i, nextColumn);
                                 continue;
                             }
                             if (Board[i, nextColumn] == Board[i, currentColumn] && !marged[i, nextColumn] && !marged[i, currentColumn])
@@ -247,6 +260,7 @@ public class InGameSystem : MonoBehaviour
                                 Board[i, currentColumn] = 0;
                                 marged[i, nextColumn] = true;
                                 isMoved = true;
+                                _moveData[index] = new BoardPosition(i, nextColumn);
                                 break;
                             }
                             else
@@ -265,22 +279,24 @@ public class InGameSystem : MonoBehaviour
     {
         _isUpdate = true;
         Debug.Log("Start");
+
+        if (_moveData != null)
+        {
+            yield return StartCoroutine((_boardView.CellMoveAnimation(_moveData, OriginalBoard)));
+            _moveData = null;
+        }
+
         var emptyPositions = GetEmptyBoardPosition();
+
         if (emptyPositions.Length > 0)
         {
             var value = Random.Range(0, 10) < _probability ? 2 : 4;
             var randomPos = emptyPositions[Random.Range(0, emptyPositions.Length)];
             SpawnCell(randomPos, value);
         }
-        if (_movePosition != null)
-        {
-            StartCoroutine((_boardView.CellMoveAnimation(_movePosition)));
-            _movePosition = null;
-        }
         _boardView.SetBoard(Board);
         _boardView.SetScore(Score);
         DumpBoard();
-        yield return new WaitForSeconds(_waitTime);
         _isUpdate = false;
     }
 }

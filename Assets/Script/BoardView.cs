@@ -44,21 +44,28 @@ public class BoardView : MonoBehaviour
         }
     }
 
-    public IEnumerator CellMoveAnimation(BoardPosition[,] movePosition)
+    public IEnumerator CellMoveAnimation(Dictionary<int, BoardPosition> data, int[,] originalBoard)
     {
         _layoutGroup.enabled = false;
-        for (int i = 0; i < movePosition.GetLength(0) * movePosition.GetLength(1); i++)
+        Dictionary<int, Vector2> targetPositions = new Dictionary<int, Vector2>();
+        foreach (var item in data)
         {
-            int r = i / movePosition.GetLength(1);
-            int c = i % movePosition.GetLength(0);
+            int fromRow = item.Key / 4;
+            int fromCol = item.Key % 4;
 
-            var target = movePosition[r, c];
-
-            int targetInd = target.Row * movePosition.GetLength(1) + movePosition.GetLength(0);
-
-            _cells[i].MoveAnimation(_cells[targetInd].transform.position);
+            var target = item.Value;
+            int index = target.Row * 4 + target.Column;
+            if (originalBoard[fromRow, fromCol] != 0)
+            {
+                targetPositions[item.Key] = (((RectTransform)(_cells[index].transform)).anchoredPosition);
+            }
         }
-        yield return new WaitForSeconds(0.2f);
+
+        foreach (var item in targetPositions)
+        {
+            _cells[item.Key].MoveAnimation(item.Value);
+        }
+        yield return new WaitForSeconds(0.3f);
         _layoutGroup.enabled = true;
     }
 }
