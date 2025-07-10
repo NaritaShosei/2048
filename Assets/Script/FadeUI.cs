@@ -9,6 +9,7 @@ public class FadeUI : MonoBehaviour
     [SerializeField] Image _image;
     public IEnumerator StartFade(int start, int end)
     {
+        _timer = 0;
         Color color = _image.color;
         while (_timer <= _duration)
         {
