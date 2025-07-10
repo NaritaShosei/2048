@@ -23,7 +23,7 @@ public class RankingSystem : MonoBehaviour
     {
         string json = PlayerPrefs.GetString(DATA_NAME, "");
         ScoreData saveData = JsonUtility.FromJson<ScoreData>(json);
-        if (string.IsNullOrEmpty(json)) { ScoreList = new(); }
+        if (string.IsNullOrEmpty(json)) { ScoreList = new() { 0, 0, 0, 0, 0 }; }
         else { ScoreList = saveData.scoreList; }
     }
 

@@ -305,6 +305,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _startButton: {fileID: 777104641}
+  _texts:
+  - {fileID: 884642165}
+  - {fileID: 503458512}
+  - {fileID: 1025026498}
+  - {fileID: 356947417}
+  - {fileID: 713032265}
 --- !u!4 &58028153
 Transform:
   m_ObjectHideFlags: 0
@@ -483,7 +489,7 @@ GameObject:
   - component: {fileID: 356947418}
   - component: {fileID: 356947417}
   m_Layer: 5
-  m_Name: Text (Legacy) (5)
+  m_Name: Score4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -667,7 +673,7 @@ GameObject:
   - component: {fileID: 503458513}
   - component: {fileID: 503458512}
   m_Layer: 5
-  m_Name: Text (Legacy) (3)
+  m_Name: Score2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -851,7 +857,7 @@ GameObject:
   - component: {fileID: 713032266}
   - component: {fileID: 713032265}
   m_Layer: 5
-  m_Name: Text (Legacy) (6)
+  m_Name: Score5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1018,7 +1024,7 @@ GameObject:
   - component: {fileID: 884642166}
   - component: {fileID: 884642165}
   m_Layer: 5
-  m_Name: Text (Legacy) (2)
+  m_Name: Score1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1097,7 +1103,7 @@ GameObject:
   - component: {fileID: 1025026499}
   - component: {fileID: 1025026498}
   m_Layer: 5
-  m_Name: Text (Legacy) (4)
+  m_Name: Score3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1344,7 +1350,7 @@ GameObject:
   - component: {fileID: 1834856412}
   - component: {fileID: 1834856411}
   m_Layer: 5
-  m_Name: Text (Legacy) (1)
+  m_Name: RankingText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

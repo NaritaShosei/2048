@@ -474,6 +474,8 @@ public class InGameSystem : MonoBehaviour
     }
     IEnumerator StartGameOver()
     {
+        RankingSystem.ScoreList.Add(Score);
+        RankingSystem.RankingSave();
         yield break;
     }
     private void OnDisable()
