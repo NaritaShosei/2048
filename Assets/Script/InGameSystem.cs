@@ -476,7 +476,8 @@ public class InGameSystem : MonoBehaviour
     {
         RankingSystem.ScoreList.Add(Score);
         RankingSystem.RankingSave();
-        yield break;
+        yield return new WaitForEndOfFrame();
+        SceneChanger.SceneChange((int)SceneType.Title);
     }
     private void OnDisable()
     {

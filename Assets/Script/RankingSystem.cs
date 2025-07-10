@@ -22,9 +22,12 @@ public class RankingSystem : MonoBehaviour
     public static void RankingLoad()
     {
         string json = PlayerPrefs.GetString(DATA_NAME, "");
-        ScoreData saveData = JsonUtility.FromJson<ScoreData>(json);
         if (string.IsNullOrEmpty(json)) { ScoreList = new() { 0, 0, 0, 0, 0 }; }
-        else { ScoreList = saveData.scoreList; }
+        else
+        {
+            ScoreData saveData = JsonUtility.FromJson<ScoreData>(json);
+            ScoreList = saveData.scoreList;
+        }
     }
 
     public static void RankingReset()

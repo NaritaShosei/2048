@@ -28,6 +28,6 @@ public class CellView : MonoBehaviour
     }
     public void MoveAnimation(Vector2 pos)
     {
-        ((RectTransform)transform).DOAnchorPos(pos, _duration);
+        ((RectTransform)transform).DOAnchorPos(pos, _duration).SetLink(gameObject);
     }
 }
