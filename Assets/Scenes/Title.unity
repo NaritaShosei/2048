@@ -305,6 +305,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _startButton: {fileID: 777104645}
+  _resetButton: {fileID: 1368373822}
   _texts:
   - {fileID: 884642165}
   - {fileID: 503458512}

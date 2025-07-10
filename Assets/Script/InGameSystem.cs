@@ -432,6 +432,22 @@ public class InGameSystem : MonoBehaviour
         }
         return isMoved;
     }
+
+    void OverCellReset()
+    {
+        for (int i = 0; i < Board.GetLength(0); i++)
+        {
+            for (int k = 0; k < Board.GetLength(1); k++)
+            {
+                var n = Board[i, k];
+                if (n > 2048)
+                {
+                    Board[i, k] = 0;
+                }
+            }
+        }
+    }
+
     bool IsGameOver()
     {
         foreach (var type in _inputTypes)
@@ -454,6 +470,8 @@ public class InGameSystem : MonoBehaviour
             _moveData = null;
         }
 
+        OverCellReset();
+
         var emptyPositions = GetEmptyBoardPosition();
 
         if (emptyPositions.Length > 0)
@@ -462,6 +480,7 @@ public class InGameSystem : MonoBehaviour
             var randomPos = emptyPositions[Random.Range(0, emptyPositions.Length)];
             SpawnCell(randomPos, value);
         }
+
         _boardView.SetBoard(Board);
         _boardView.SetScore(Score);
         DumpBoard();

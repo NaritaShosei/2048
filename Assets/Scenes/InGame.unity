@@ -2458,7 +2458,7 @@ MonoBehaviour:
   _input: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   _boardView: {fileID: 1183097957}
   _fadeUI: {fileID: 117941469}
-  _probability: 5
+  _probability: 8
 --- !u!4 &2111286204
 Transform:
   m_ObjectHideFlags: 0
