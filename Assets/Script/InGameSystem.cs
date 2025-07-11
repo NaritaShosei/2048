@@ -9,6 +9,7 @@ public class InGameSystem : MonoBehaviour
     [SerializeField] InputActionAsset _input;
     [SerializeField] BoardView _boardView;
     [SerializeField] FadeUI _fadeUI;
+    [SerializeField] MoveUI _moveUI;
     public int[,] Board { get; private set; }
     public int[,] OriginalBoard { get; private set; }
     public int Score { get; private set; }
@@ -505,6 +506,7 @@ public class InGameSystem : MonoBehaviour
         if (IsGameOver())
         {
             Debug.Log("GameOver");
+            yield return StartCoroutine(_moveUI.StartMove());
             StartCoroutine(StartGameOver());
         }
         _isUpdate = false;
