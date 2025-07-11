@@ -19,9 +19,9 @@ public class BoardView : MonoBehaviour
             _cells.Add(Instantiate(_cellPrefab.GetComponent<CellView>(), _cellContainer.transform));
         }
     }
-    public void SetScore(int Score)
+    public void SetScore(int score)
     {
-        _scoreText.text = Score.ToString();
+        _scoreText.text = $"{score}";
     }
 
     public void SetBoard(int[,] board)
