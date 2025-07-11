@@ -15,7 +15,10 @@ public class InGameSystem : MonoBehaviour
     bool _isUpdate;
     [SerializeField] int _probability = 5;
     Dictionary<int, BoardPosition> _moveData = new();
+    int _index;
     InputType[] _inputTypes = new InputType[] { InputType.Up, InputType.Down, InputType.Left, InputType.Right };
+
+    List<Turn> _turns = new List<Turn>();
     void Start()
     {
         StartCoroutine(Initialize());
@@ -30,19 +33,21 @@ public class InGameSystem : MonoBehaviour
         _boardView.Initialize();
         _boardView.SetBoard(Board);
         _boardView.SetScore(Score);
-
+        _turns.Add(new Turn(Score, Board));
         yield return StartCoroutine(_fadeUI.StartFade(1, 0));
 
         _input.FindAction("Up").started += Up;
         _input.FindAction("Down").started += Down;
         _input.FindAction("Left").started += Left;
         _input.FindAction("Right").started += Right;
+        _input.FindAction("UnDo").started += UnDo;
 
     }
     void SpawnCell(BoardPosition pos, int value)
     {
         Board[pos.Row, pos.Column] = value;
         _boardView.SetBoard(Board);
+        _turns.Add(new Turn(Score, Board));
     }
 
     BoardPosition[] GetEmptyBoardPosition()
@@ -86,6 +91,19 @@ public class InGameSystem : MonoBehaviour
         if (_isUpdate) { return; }
         if (BoardSlide(InputType.Right)) StartCoroutine(nameof(UpdateCells));
     }
+    void UnDo(InputAction.CallbackContext context)
+    {
+        if (_isUpdate) { return; }
+        if (_turns.Count > 1)
+        {
+            _turns.Remove(_turns[^1]);
+            Score = _turns[^1].Score;
+            Board = _turns[^1].Board.Clone() as int[,];
+            _boardView.SetBoard(Board);
+            _boardView.SetScore(Score);
+        }
+    }
+
     public void DumpBoard()
     {
         StringBuilder sb = new StringBuilder();
@@ -504,6 +522,18 @@ public class InGameSystem : MonoBehaviour
         _input.FindAction("Down").started -= Down;
         _input.FindAction("Left").started -= Left;
         _input.FindAction("Right").started -= Right;
+        _input.FindAction("UnDo").started -= UnDo;
+    }
+}
+public class Turn
+{
+    public int Score;
+    public int[,] Board;
+
+    public Turn(int score, int[,] board)
+    {
+        Score = score;
+        Board = board.Clone() as int[,];
     }
 }
 

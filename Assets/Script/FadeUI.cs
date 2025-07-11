@@ -9,6 +9,7 @@ public class FadeUI : MonoBehaviour
     [SerializeField] Image _image;
     public IEnumerator StartFade(int start, int end)
     {
+        _image.raycastTarget = true;
         _timer = 0;
         Color color = _image.color;
         while (_timer <= _duration)
@@ -19,5 +20,6 @@ public class FadeUI : MonoBehaviour
             _image.color = color;
             yield return new WaitForEndOfFrame();
         }
+        _image.raycastTarget = false;
     }
 }

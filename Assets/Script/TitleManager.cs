@@ -10,9 +10,8 @@ public class TitleManager : MonoBehaviour
     [SerializeField] ButtonBase _resetButton;
     [SerializeField] Text[] _texts;
     [SerializeField] FadeUI _fadeUI;
-
-    System.Action _startAction;
-    System.Action _resetAction;
+    Action _startAction;
+    Action _resetAction;
     private void Start()
     {
         StartCoroutine(Initialize());
