@@ -12,5 +12,4 @@ public enum SceneType
 {
     Title = 0,
     Ingame = 1,
-    Result = 2,
 }

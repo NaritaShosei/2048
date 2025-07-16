@@ -14,7 +14,6 @@ public class TitleManager : MonoBehaviour
     Action _resetAction;
     private void Start()
     {
-        FindAnyObjectByType<AudioManager>().PlayBGM(SceneType.Ingame);
         StartCoroutine(Initialize());
     }
 
