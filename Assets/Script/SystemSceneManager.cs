@@ -2,7 +2,7 @@
 
 public class SystemSceneManager : MonoBehaviour
 {
-    bool _isInitialize = false;
+    static bool _isInitialize = false;
 
     private void Awake()
     {

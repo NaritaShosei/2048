@@ -75,23 +75,30 @@ public class InGameSystem : MonoBehaviour
     void Up(InputAction.CallbackContext context)
     {
         if (_isUpdate) { return; }
-        if (BoardSlide(InputType.Up)) StartCoroutine(nameof(UpdateCells));
+        if (BoardSlide(InputType.Up)) StartCoroutine(UpdateCells());
     }
     void Down(InputAction.CallbackContext context)
     {
         if (_isUpdate) { return; }
-        if (BoardSlide(InputType.Down)) StartCoroutine(nameof(UpdateCells));
+        if (BoardSlide(InputType.Down)) StartCoroutine(UpdateCells());
     }
     void Left(InputAction.CallbackContext context)
     {
         if (_isUpdate) { return; }
-        if (BoardSlide(InputType.Left)) StartCoroutine(nameof(UpdateCells));
+        if (BoardSlide(InputType.Left)) StartCoroutine(UpdateCells());
     }
     void Right(InputAction.CallbackContext context)
     {
         if (_isUpdate) { return; }
-        if (BoardSlide(InputType.Right)) StartCoroutine(nameof(UpdateCells));
+        if (BoardSlide(InputType.Right)) StartCoroutine(UpdateCells());
     }
+
+    public void Flick(InputType type)
+    {
+        if (_isUpdate) { return; }
+        if (BoardSlide(type)) StartCoroutine(UpdateCells());
+    }
+
     void UnDo(InputAction.CallbackContext context)
     {
         if (_isUpdate) { return; }
@@ -511,6 +518,7 @@ public class InGameSystem : MonoBehaviour
         }
         _isUpdate = false;
     }
+
     IEnumerator StartGameOver()
     {
         RankingSystem.ScoreList.Add(Score);
@@ -526,6 +534,27 @@ public class InGameSystem : MonoBehaviour
         _input.FindAction("Right").started -= Right;
         _input.FindAction("UnDo").started -= UnDo;
     }
+
+#if UNITY_EDITOR
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            StartCoroutine(TestSlideAllDirections());
+        }
+    }
+    IEnumerator TestSlideAllDirections()
+    {
+        foreach (var key in _inputTypes)
+        {
+            Debug.Log($"Slide {key}");
+            if (BoardSlide(key))
+            {
+                yield return StartCoroutine(UpdateCells());
+            }
+        }
+    }
+#endif
 }
 public class Turn
 {
@@ -539,7 +568,7 @@ public class Turn
     }
 }
 
-enum InputType
+public enum InputType
 {
     Up,
     Down,
