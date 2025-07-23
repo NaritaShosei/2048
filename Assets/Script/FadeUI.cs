@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Cysharp.Threading.Tasks;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,7 +8,7 @@ public class FadeUI : MonoBehaviour
     float _timer;
     [SerializeField] float _duration = 1;
     [SerializeField] Image _image;
-    public IEnumerator StartFade(int start, int end)
+    public async UniTask StartFade(int start, int end)
     {
         _image.raycastTarget = true;
         _timer = 0;
@@ -18,7 +19,7 @@ public class FadeUI : MonoBehaviour
             float t = Mathf.Clamp01(_timer / _duration);
             color.a = Mathf.Lerp(start, end, t);
             _image.color = color;
-            yield return new WaitForEndOfFrame();
+            await UniTask.Yield(cancellationToken: destroyCancellationToken);
         }
         _image.raycastTarget = false;
     }

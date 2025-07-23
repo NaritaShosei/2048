@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -16,33 +18,45 @@ public class InGameSystem : MonoBehaviour
     bool _isUpdate;
     [SerializeField] int _probability = 5;
     Dictionary<int, BoardPosition> _moveData = new();
-    int _index;
+
     InputType[] _inputTypes = new InputType[] { InputType.Up, InputType.Down, InputType.Left, InputType.Right };
 
     List<Turn> _turns = new List<Turn>();
-    void Start()
+    async void Start()
     {
-        StartCoroutine(Initialize());
+        await Initialize();
     }
 
-    IEnumerator Initialize()
+    private async UniTask Initialize()
     {
-        var board = new int[4, 4];
-        board[Random.Range(0, 4), Random.Range(0, 4)] = Random.Range(0, 10) < _probability ? 2 : 4;
-        InitializeGame(board, 0);
+        try
+        {
+            var board = new int[4, 4];
+            board[UnityEngine.Random.Range(0, 4), UnityEngine.Random.Range(0, 4)] = UnityEngine.Random.Range(0, 10) < _probability ? 2 : 4;
+            InitializeGame(board, 0);
 
-        _boardView.Initialize();
-        _boardView.SetBoard(Board);
-        _boardView.SetScore(Score);
-        _turns.Add(new Turn(Score, Board));
-        yield return StartCoroutine(_fadeUI.StartFade(1, 0));
+            _boardView.Initialize();
+            _boardView.SetBoard(Board);
+            _boardView.SetScore(Score);
+            _turns.Add(new Turn(Score, Board));
+            await _fadeUI.StartFade(1, 0);
 
-        _input.FindAction("Up").started += Up;
-        _input.FindAction("Down").started += Down;
-        _input.FindAction("Left").started += Left;
-        _input.FindAction("Right").started += Right;
-        _input.FindAction("UnDo").started += UnDo;
+            _input.FindAction("Up").started += Up;
+            _input.FindAction("Down").started += Down;
+            _input.FindAction("Left").started += Left;
+            _input.FindAction("Right").started += Right;
+            _input.FindAction("UnDo").started += UnDo;
+        }
 
+        catch (OperationCanceledException)
+        {
+            Debug.Log("処理がキャンセルされました");
+        }
+
+        catch (Exception ex)
+        {
+            Debug.LogError($"予期せぬエラー{ex.Message}");
+        }
     }
     void SpawnCell(BoardPosition pos, int value)
     {
@@ -75,28 +89,28 @@ public class InGameSystem : MonoBehaviour
     void Up(InputAction.CallbackContext context)
     {
         if (_isUpdate) { return; }
-        if (BoardSlide(InputType.Up)) StartCoroutine(UpdateCells());
+        if (BoardSlide(InputType.Up)) UpdateCells().Forget();
     }
     void Down(InputAction.CallbackContext context)
     {
         if (_isUpdate) { return; }
-        if (BoardSlide(InputType.Down)) StartCoroutine(UpdateCells());
+        if (BoardSlide(InputType.Down)) UpdateCells().Forget();
     }
     void Left(InputAction.CallbackContext context)
     {
         if (_isUpdate) { return; }
-        if (BoardSlide(InputType.Left)) StartCoroutine(UpdateCells());
+        if (BoardSlide(InputType.Left)) UpdateCells().Forget();
     }
     void Right(InputAction.CallbackContext context)
     {
         if (_isUpdate) { return; }
-        if (BoardSlide(InputType.Right)) StartCoroutine(UpdateCells());
+        if (BoardSlide(InputType.Right)) UpdateCells().Forget();
     }
 
     public void Flick(InputType type)
     {
         if (_isUpdate) { return; }
-        if (BoardSlide(type)) StartCoroutine(UpdateCells());
+        if (BoardSlide(type)) UpdateCells().Forget();
     }
 
     void UnDo(InputAction.CallbackContext context)
@@ -485,45 +499,56 @@ public class InGameSystem : MonoBehaviour
         }
         return true;
     }
-    IEnumerator UpdateCells()
+    async UniTask UpdateCells()
     {
-        _isUpdate = true;
-        Debug.Log("Start");
-
-        if (_moveData != null)
+        try
         {
-            yield return StartCoroutine((_boardView.CellMoveAnimation(_moveData, OriginalBoard)));
-            _moveData = null;
+            _isUpdate = true;
+            Debug.Log("Start");
+
+            if (_moveData != null)
+            {
+                await _boardView.CellMoveAnimation(_moveData, OriginalBoard);
+                _moveData = null;
+            }
+
+            OverCellReset();
+
+            var emptyPositions = GetEmptyBoardPosition();
+
+            if (emptyPositions.Length > 0)
+            {
+                var value = UnityEngine.Random.Range(0, 10) < _probability ? 2 : 4;
+                var randomPos = emptyPositions[UnityEngine.Random.Range(0, emptyPositions.Length)];
+                SpawnCell(randomPos, value);
+            }
+
+            _boardView.SetBoard(Board);
+            _boardView.SetScore(Score);
+            DumpBoard();
+            if (IsGameOver())
+            {
+                Debug.Log("GameOver");
+                await _moveUI.StartMove();
+                StartGameOver().Forget();
+            }
+            _isUpdate = false;
         }
-
-        OverCellReset();
-
-        var emptyPositions = GetEmptyBoardPosition();
-
-        if (emptyPositions.Length > 0)
+        catch (OperationCanceledException)
         {
-            var value = Random.Range(0, 10) < _probability ? 2 : 4;
-            var randomPos = emptyPositions[Random.Range(0, emptyPositions.Length)];
-            SpawnCell(randomPos, value);
+            Debug.Log("処理がキャンセルされました");
         }
-
-        _boardView.SetBoard(Board);
-        _boardView.SetScore(Score);
-        DumpBoard();
-        if (IsGameOver())
+        catch (Exception ex)
         {
-            Debug.Log("GameOver");
-            yield return StartCoroutine(_moveUI.StartMove());
-            StartCoroutine(StartGameOver());
+            Debug.LogError($"予期せぬエラー{ex.Message}");
         }
-        _isUpdate = false;
     }
 
-    IEnumerator StartGameOver()
+    private async UniTask StartGameOver()
     {
         RankingSystem.ScoreList.Add(Score);
         RankingSystem.RankingSave();
-        yield return StartCoroutine(_fadeUI.StartFade(0, 1));
+        await _fadeUI.StartFade(0, 1);
         SceneChanger.SceneChange((int)SceneType.Title);
     }
     private void OnDisable()
@@ -536,21 +561,21 @@ public class InGameSystem : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    private void Update()
+    private async void Update()
     {
         if (Input.GetKeyDown(KeyCode.L))
         {
-            StartCoroutine(TestSlideAllDirections());
+            await TestSlideAllDirections();
         }
     }
-    IEnumerator TestSlideAllDirections()
+    async UniTask TestSlideAllDirections()
     {
         foreach (var key in _inputTypes)
         {
             Debug.Log($"Slide {key}");
             if (BoardSlide(key))
             {
-                yield return StartCoroutine(UpdateCells());
+                await UpdateCells();
             }
         }
     }

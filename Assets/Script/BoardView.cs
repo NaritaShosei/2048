@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
 
 public class BoardView : MonoBehaviour
 {
@@ -44,7 +45,7 @@ public class BoardView : MonoBehaviour
         }
     }
 
-    public IEnumerator CellMoveAnimation(Dictionary<int, BoardPosition> data, int[,] originalBoard)
+    public async UniTask CellMoveAnimation(Dictionary<int, BoardPosition> data, int[,] originalBoard)
     {
         _layoutGroup.enabled = false;
         Dictionary<int, Vector2> targetPositions = new Dictionary<int, Vector2>();
@@ -65,7 +66,7 @@ public class BoardView : MonoBehaviour
         {
             _cells[item.Key].MoveAnimation(item.Value);
         }
-        yield return new WaitForSeconds(0.3f);
+        await UniTask.Delay(300, cancellationToken: destroyCancellationToken);
         _layoutGroup.enabled = true;
     }
 }

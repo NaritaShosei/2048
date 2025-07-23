@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using Unity.VisualScripting;
+﻿using Cysharp.Threading.Tasks;
+using System.Collections;
 using UnityEngine;
 
 public class MoveUI : MonoBehaviour
@@ -8,7 +8,7 @@ public class MoveUI : MonoBehaviour
     float _timer;
     [SerializeField] Vector3 _position = Vector3.zero;
 
-    public IEnumerator StartMove()
+    public async UniTask StartMove()
     {
         _timer = 0;
         Vector3 start = ((RectTransform)transform).anchoredPosition;
@@ -18,7 +18,7 @@ public class MoveUI : MonoBehaviour
 
             float t = Mathf.Clamp01(_timer / _duration);
             ((RectTransform)transform).anchoredPosition = Vector3.Lerp(start, _position, t);
-            yield return new WaitForEndOfFrame();
+            await UniTask.Yield(cancellationToken: destroyCancellationToken);
         }
     }
 }

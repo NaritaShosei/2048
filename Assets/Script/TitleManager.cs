@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using System;
 using System.Collections;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,12 +14,12 @@ public class TitleManager : MonoBehaviour
     [SerializeField] FadeUI _fadeUI;
     Action _startAction;
     Action _resetAction;
-    private void Start()
+    private async void Start()
     {
-        StartCoroutine(Initialize());
+        await Initialize();
     }
 
-    IEnumerator Initialize()
+    async UniTask Initialize()
     {
         RankingSystem.RankingLoad();
 
@@ -29,9 +31,9 @@ public class TitleManager : MonoBehaviour
             _texts[i].text = $"{i + 1}位:{score:00000}";
         }
 
-        yield return StartCoroutine(Fade(1, 0, null));
+        await Fade(1, 0, null);
 
-        _startAction = () => StartCoroutine(Fade(0, 1, () => SceneChanger.SceneChange((int)SceneType.Ingame)));
+        _startAction = async () => await Fade(0, 1, () => SceneChanger.SceneChange((int)SceneType.Ingame));
         _resetAction = () =>
         {
             RankingSystem.RankingReset();
@@ -45,9 +47,9 @@ public class TitleManager : MonoBehaviour
         _resetButton.OnClick += _resetAction;
     }
 
-    IEnumerator Fade(int start, int target, Action onComplete)
+    async UniTask Fade(int start, int target, Action onComplete)
     {
-        yield return StartCoroutine(_fadeUI.StartFade(start, target));
+        await _fadeUI.StartFade(start, target);
         onComplete?.Invoke();
     }
 
